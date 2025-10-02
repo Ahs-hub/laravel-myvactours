@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\TourBlockedDateController;
 
+//verify email
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Support\Facades\Auth;
+
 use App\Http\Controllers\TourBookingController;
 use App\Http\Controllers\WishlistController;
 
@@ -29,6 +33,9 @@ use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarBookingController;
 
 use App\Http\Controllers\CustomTourRequestController;
+
+//for login
+use App\Http\Controllers\GoogleController;
 
 use Illuminate\Session\Middleware\StartSession;
 //change language
@@ -120,6 +127,22 @@ Route::middleware(['web', 'setlocale'])->group(function () {
 
 });
 
+// Auth routes with verification enabled
+Auth::routes(['verify' => true]);
+
+// Default email verification page
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+// Custom verify route (user clicks link in email)
+Route::get('/verify-email/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill(); // marks email_verified_at
+    return redirect('/')->with('status', '✅ Email verified! You can log in now.');
+})->middleware(['signed'])->name('verification.verify');
+
+
+
 //admin login to form 
 // Show login form
 Route::get('/admin/secure-Df678pK3/login', [AuthController::class, 'showLoginForm'])->name('admin.login.form');
@@ -128,40 +151,6 @@ Route::get('/admin/secure-Df678pK3/login', [AuthController::class, 'showLoginFor
 Route::post('/admin/secure-Df678pK3/login', [AuthController::class, 'login'])
 ->middleware('throttle:5,1') // 5 attempts per minute
 ->name('admin.login');
-
-
-
-// Protected dashboard (only logged-in users can access)
-// Route::middleware('auth')->get('/admin/dashboard', function () {
-//     return view('admin.dashboardpanel');
-// })->name('admin.dashboard');
-//Deletion of all data for admin
-//Route::middleware('auth')->post('/delete-data', [AdminSetupController::class, 'deleteData']);
-
-//
-
-
-// Search bulk  deletion
-// API for preview counts
-//Route::middleware('auth')->post('/admin/delete-preview', [AdminSetupController::class, 'previewDelete']);
-
-// Protected JSON tours route
-// Route::middleware('auth')->group(function () {
-//     Route::get('/admin/tours/json', [AdminTourController::class, 'json'])
-//         ->name('admin.tours.json');
-
-//     Route::put('/admin/tours/{tour}', [AdminTourController::class, 'update'])
-//         ->name('admin.tours.update');
-// });
-
-// Protected JSON cars route
-// Route::middleware('auth')->group(function () {
-//     Route::get('/admin/cars/json', [AdminCarController::class, 'json'])
-//         ->name('admin.cars.json');
-
-//     Route::put('/admin/cars/{car}', [AdminCarController::class, 'update'])
-//         ->name('admin.cars.update');
-// });
 
 //Get/Edit email,whatapp,social link
 Route::middleware(['auth', 'is_admin'])->group(function () {
@@ -224,71 +213,14 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
 });
 
 
-// Go to Book Tour panel
-// Route::middleware('auth')->get('/admin/booktour', function () {
-//     return view('admin.tourpanel');
-// })->name('admin.tourpanel');
-
-// Go to contact panel
-// Route::middleware('auth')->get('/admin/contactpanel', function () {
-//     return view('admin.contactpanel');
-// })->name('admin.contactpanel');
-
-
-// Go to notification panel
-// Route::middleware('auth')->get('/admin/notificationpanel', function () {
-//     return view('admin.notificationpanel');
-// })->name('admin.notificationpanel');
-
-// Go to car rental panel
-// Route::middleware('auth')->get('/admin/carrentalpanel', function () {
-//     return view('admin.rentalpanel');
-// })->name('admin.carrentalpanel');
-
-// Go to discount panel
-// Route::middleware('auth')->get('/admin/discountpanel', function () {
-//     return view('admin.discountpanel');
-// })->name('admin.discountpanel');
-
-// Go to profile panel
-// Route::middleware('auth')->get('/admin/profilepanel', function () {
-//     return view('admin.profilepanel');
-// })->name('admin.profilepanel');
-
-// Go to taxi panel
-// Route::middleware('auth')->get('/admin/taxipanel', function () {
-//     return view('admin.taxipanel');
-// })->name('admin.taxipanel');
-
-// Go to custom panel
-// Route::middleware('auth')->get('/admin/custompanel', function () {
-//     return view('admin.custompanel');
-// })->name('admin.custompanel');
-
-// Go to bulk deletion
-// Route::middleware('auth')->get('/admin/deletepanel', function () {
-//     return view('admin.deletepanel');
-// })->name('admin.deletepanel');
+//For google login
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle']);
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 
 Route::get('/rentcar/{id}', [CarController::class, 'show'])->name('rentcar.show');
 
 
-
-//save booking tour
-// Route::post('/tour-bookings', [TourBookingController::class, 'store'])->name('tour.bookings.store');
-
-
-// Route::prefix('admin')->middleware(['auth'])->group(function () {
-//     Route::get('/tours/blocked-dates/{id}', [TourBlockedDateController::class, 'getBlockedDates']);
-//     Route::post('/tours/block-dates', [TourBlockedDateController::class, 'saveBlockedDates']);
-// });
-
-// In web.php (with auth middleware) show tour in admin panel
-// Route::get('/admin/tours/block-dates', [TourBlockedDateController::class, 'showBlockTourDatesPage'])->middleware('auth');
-
-
-//Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/db-check', function () {
     try {
@@ -304,26 +236,9 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Route::middleware('auth')->group(function () {
-//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-// });
-
-
 
 //Send contact to email
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
-
-//Go to Luxury taxi page
-// Route::get('/luxurytransfer', function () {
-//     return view('luxurytransfer');
-// })->name('luxurytransfer'); 
-//tours
-
-// Route::get('/north-coast', function () {
-//     return view('north-coast-sightseeing');
-// })->name('north-coast');
 
 
 //Save the tour in database

@@ -145,18 +145,19 @@
                           <i class='bx bx-globe'></i> {{ __('messages.en') }}/EUR(€)
                         </a>
                     </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+                           <i class='bx bx-user'></i> 
+                           {{ Auth::check() ? Auth::user()->name : 'Profile' }}
+                        </a>
+                    </li>
                     <!-- <li class="nav-item">
                         <a class="nav-link" href="#event_planner">Event Planner</a>
                     </li> --> 
                     <!-- <li class="nav-item">
                         <a class="nav-link" href="#contact">Language</a>
                     </li> -->
-           
-                    <!-- <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
-                          <i class='bx bx-user'></i> Profile
-                        </a>
-                      </li> -->
 
                     <!-- <li class="nav-item">
                         <a class="nav-link" href="#contact">Profile</a>
@@ -171,28 +172,210 @@
 
      @yield('content')
    
+     <!--What app Icon -->
+     <div class="whatsapp-widget">
+        <div class="whatsapp-icon show" id="whatsappIcon">
+            <i class='bx bxl-whatsapp'></i>
+            <div class="whatsapp-label">{{ __('messages.join_whatsapp') }}</div>
+        </div>
+
+        <div class="whatsapp-chat-popup" id="chatPopup">
+            <div class="chat-header">
+                <div class="chat-header-content">
+                    <i class='bx bxl-whatsapp'></i>
+                    <span class="chat-title">WhatsApp</span>
+                </div>
+                <button class="close-chat" id="closeChat">
+                    <i class='bx bx-x'></i>
+                </button>
+            </div>
+            
+            <div class="chat-body">
+                <div class="chat-message">
+                    {{ __('messages.hello_how_we_we_help_you') }}
+                </div>
+                
+                <a href="https://wa.me/{{ $whatsappNumber }}" target="_blank" id="openChatBtn" class="whatsapp-link open-chat-btn" style="text-decoration:none; color:white;">
+                        <i class='bx bx-paper-plane'></i>
+                        {{ __('messages.open_chat') }}
+                </a>
+
+            </div>
+
+        </div>
+        
+    </div>
 
     <!-- Profile Modal -->
-  <div class="modal fade " id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered ">
-      <div class="modal-content custom-modal ">
-        <div class="modal-body">
-          <h5 class="modal-title mb-4" id="profileModalLabel">Profile</h5>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item profile-item">
-              <i class='bx bx-log-in-circle'></i> Log In or Sign In
-            </li>
-            <li class="list-group-item profile-item">
-              <i class='bx bx-support'></i> Support
-            </li>
-            <li class="list-group-item profile-item">
-              <i class='bx bx-mobile'></i> Download our App
-            </li>
-          </ul>
+    <div class="modal fade " id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered ">
+        <div class="modal-content custom-modal ">
+            <div class="modal-body">
+            <h5 class="modal-title mb-4" id="profileModalLabel">Profile</h5>
+            <ul class="list-group list-group-flush">
+                <!-- <li class="list-group-item profile-item">
+                <i class='bx bx-log-in-circle'></i> Log In or Sign In
+                </li> -->
+                <li class="list-group-item profile-item" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">
+                    <i class='bx bx-log-in-circle'></i> Log In or Sign Up
+                </li>
+
+                <li class="list-group-item profile-item">
+                <i class='bx bx-support'></i> Support
+                </li>
+                <li class="list-group-item profile-item">
+                <i class='bx bx-mobile'></i> Download our App
+                </li>
+            </ul>
+            </div>
         </div>
-      </div>
+        </div>
     </div>
-  </div>
+
+    <!-- Login / Signup Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-4 rounded-3 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title w-100 text-center" id="loginModalLabel">
+                Sign in to unlock the best of YourSite
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body text-center" style="margin-bottom:50px; margin-top:50px;">
+                <!-- Continue with Google -->
+                <a href="{{ url('auth/google') }}" class="btn w-100 mb-3 d-flex align-items-center justify-content-center border rounded-pill">
+                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="20" class="me-2">
+                Continue with Google
+                </a>
+
+                <!-- Continue with Email -->
+                <button class="btn w-100 d-flex align-items-center justify-content-center border rounded-pill"
+                        data-bs-target="#emailLoginModal" data-bs-toggle="modal" data-bs-dismiss="modal">
+                        <i class="bi bi-envelope me-2"></i>
+                        Continue with Email
+                </button>
+            </div>
+
+            <div class="modal-footer text-center border-0 flex-column small">
+                <p>
+                By proceeding, you agree to our 
+                <a href="#">Terms of Use</a> and confirm you have read our 
+                <a href="#">Privacy Policy</a>.
+                </p>
+                <p class="text-muted mb-0">
+                This site is protected by reCAPTCHA and the Google 
+                <a href="#">Privacy Policy</a> and 
+                <a href="#">Terms of Service</a> apply.
+                </p>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Login Modal -->
+    <div class="modal fade" id="emailLoginModal" tabindex="-1" aria-labelledby="emailLoginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-4 rounded-3 shadow">
+        <div class="modal-header border-0">
+            <h5 class="modal-title w-100 text-center" id="emailLoginModalLabel">
+            Sign in with Email
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+            <form method="POST" action="{{ route('login') }}">
+            @csrf
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email address</label>
+                <input type="email" name="email" id="email" class="form-control" required autofocus>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" id="password" class="form-control" required>
+            </div>
+
+            <div class="d-flex justify-content-between mb-3">
+                <a href="{{ route('password.request') }}">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 rounded-pill">
+                Sign in
+            </button>
+            </form>
+
+            <hr class="my-4">
+
+            <p class="text-center small">
+                Not a member?   
+                <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal" data-bs-dismiss="modal">
+                    Join now
+                </a>
+            </p>
+        </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-4 rounded-3 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title w-100 text-center" id="registerModalLabel">
+                Create an account
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form method="POST" action="{{ route('register') }}">
+                @csrf
+
+                <div class="row mb-3">
+                    <label for="name" class="form-label">Username</label>
+                    <input type="text" name="name" id="name" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email_register" class="form-label">Email address</label>
+                    <input type="email" name="email" id="email_register" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password_register" class="form-label">Create a password</label>
+                    <input type="password" name="password" id="password_register" class="form-control" required>
+                </div>
+
+                
+                <div class="mb-3">
+                    <label for="password_confirmation" class="form-label">Confirm password</label>
+                    <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 rounded-pill">
+                    Join
+                </button>
+                </form>
+
+                <hr class="my-4">
+
+                <p class="text-center small">
+                Already a member? 
+                <a href="#" data-bs-toggle="modal" data-bs-target="#emailLoginModal" data-bs-dismiss="modal">
+                    Sign in
+                </a>
+                </p>
+            </div>
+            </div>
+        </div>
+    </div>
+
 
    <!-- Language & Currency Modal -->
     <div class="modal fade" id="langCurrencyModal" tabindex="-1" aria-labelledby="langCurrencyModalLabel" aria-hidden="true">
